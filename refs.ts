@@ -1,6 +1,6 @@
 /**
  * Papercuts in the browser: the small frictions agents raised, and the document the Documents tab shows. Browser-safe
- * and self-contained: types plus the two refs Ultimate's web SDK reads by name, with no imports at all.
+ * and self-contained: the types plus the one ref Ultimate's web SDK reads by name, with no imports at all.
  */
 
 /** What kind of friction it was: a tool, an instruction, the harness, the environment, the model, or something slow. */
@@ -51,21 +51,4 @@ export type DocRef<T> = {
 }
 export const docRef = <T>(kind: string): DocRef<T> => ({ kind })
 
-/** An action of this extension's server facet, typed by its arguments and result; `api.action(ref, args)` takes it. */
-export type ActionRef<Args, Result> = {
-  readonly extension: string
-  readonly name: string
-  /** Phantom: carries the argument type; never set at runtime. */
-  readonly args?: Args
-  /** Phantom: carries the result type; never set at runtime. */
-  readonly result?: Result
-}
-export const actionRef = <Args, Result>(
-  extension: string,
-  name: string,
-): ActionRef<Args, Result> => ({ extension, name })
-
 export const PapercutDoc = docRef<PapercutsDoc>('papercut')
-
-/** No arguments → the open rows as the tool lists them, for the dream's failures pass. Never a search. */
-export const ListAction = actionRef<null, { text: string; rows: Papercut[] }>('papercut', 'list')

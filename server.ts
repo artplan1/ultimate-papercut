@@ -67,7 +67,10 @@ export const Papercuts = defineDoc<PapercutsDoc>({
 export const docs = [Papercuts]
 
 export const actions = {
-  /** `papercut/list` (`ListAction` in refs.ts is the same contract for the browser): the open rows, never a search. */
+  /**
+   * `papercut/list`, for the dream's failures pass: the open rows as text, and every kept row as `rows`. Never a
+   * search.
+   */
   list: async (_args: JsonValue, { host }: ActionContext) => {
     const kept = await host.harness().commit(async (tx) => {
       const rows = (await tx.doc(Papercuts, ROOT_CONVERSATION_ID)).rows

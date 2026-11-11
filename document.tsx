@@ -1,6 +1,5 @@
 import { BandageIcon } from 'lucide-react'
 import { formatAgo, plural, useDocOf } from '@/sdk'
-import type { DocumentProps } from '@/sdk'
 import { PapercutDoc } from './refs.ts'
 import type { Papercut } from './refs.ts'
 
@@ -8,7 +7,7 @@ import type { Papercut } from './refs.ts'
  * The papercut index in the Documents tab: the open rows, then the closed ones still kept. The index lives on the root
  * conversation, so this reads conversation 1 rather than the shown conversation's own (always empty) document.
  */
-export function PapercutsDocument(_props: DocumentProps) {
+export function PapercutsDocument() {
   const rows = (useDocOf(1, PapercutDoc)?.rows ?? []).toReversed()
   const open = rows.filter((row) => row.status === 'open')
   const closed = rows.filter((row) => row.status !== 'open')

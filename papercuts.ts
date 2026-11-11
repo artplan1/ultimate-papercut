@@ -23,7 +23,7 @@ export const WHAT_CHARS = 280
 export const WHERE_CHARS = 120
 export const FIX_CHARS = 200
 export const REF_CHARS = 120
-/** A row open this long without a repeat is offered for closing by the dream's failures pass. */
+/** A row raised once and left open this long is stale: the failures pass offers it for closing. */
 export const STALE_MS = 30 * 24 * 60 * 60 * 1000
 
 /** An empty index, as the document starts: a brand new chapter's root has none yet. */
@@ -67,11 +67,13 @@ function ago(at: number, now = Date.now()): string {
   )
 }
 
+const isStale = (row: Papercut, now: number) => row.count === 1 && now - row.at > STALE_MS
+
 /**
  * What makes two raises the same friction: kind and where. Without a where, the start of the words it uses, so twenty
  * branches' "max one failing lookup" stays one row instead of twenty.
  */
-export function keyOf(row: Pick<Papercut, 'kind' | 'where' | 'what'>) {
+function keyOf(row: Pick<Papercut, 'kind' | 'where' | 'what'>) {
   const where = row.where ? oneLine(row.where).toLowerCase() : ''
   if (where) return `${row.kind} · ${where}`
   const start = oneLine(row.what)
@@ -149,11 +151,10 @@ export function resolve(index: PapercutsDoc, id: unknown, how: Closing, ref?: un
 }
 
 const rowLine = (row: Papercut, now: number) => {
-  const stale = row.count === 1 && now - row.at > STALE_MS
   return [
     `- ${row.id} · ${row.kind}`,
     row.count > 1 ? ` · ${row.count}×` : '',
-    ` · ${ago(row.at, now)}${stale ? ', never repeated' : ''}`,
+    ` · ${ago(row.at, now)}${isStale(row, now) ? ', never repeated' : ''}`,
     row.where ? ` · ${row.where}` : '',
     `: ${row.what}`,
     row.fix ? ` · fix: ${row.fix}` : '',
@@ -164,7 +165,7 @@ const rowLine = (row: Papercut, now: number) => {
 export function listText(rows: readonly Papercut[], now = Date.now()) {
   const open = rows.filter((row) => row.status === 'open').toSorted((a, b) => b.id - a.id)
   if (!open.length) return 'No open papercuts.'
-  const stale = open.filter((row) => row.count === 1 && now - row.at > STALE_MS).length
+  const stale = open.filter((row) => isStale(row, now)).length
   return [
     `${open.length} open, newest first:`,
     ...open.map((row) => rowLine(row, now)),

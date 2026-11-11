@@ -1,0 +1,17 @@
+{
+  "name": "ultimate-papercut",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Papercuts: the small frictions Ultimate's agents hit, recorded where the next dream finds them.",
+  "license": "MIT",
+  "repository": "github:artplan1/ultimate-papercut",
+  "type": "module",
+  "scripts": {
+    "check": "node --check papercuts.ts && node --check refs.ts && node --check server.ts && node --check install.ts",
+    "test": "node --test test/papercuts.test.ts test/install.test.ts",
+    "install:local": "node install.ts"
+  },
+  "engines": {
+    "node": ">=26"
+  }
+}

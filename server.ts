@@ -16,12 +16,16 @@ import {
   CLOSINGS,
   closedText,
   copyRow,
+  FIX_CHARS,
   initialPapercuts,
   KINDS,
   listText,
   raise,
   raisedText,
+  REF_CHARS,
   resolve,
+  WHAT_CHARS,
+  WHERE_CHARS,
 } from './papercuts.ts'
 import { PapercutDoc } from './refs.ts'
 import type { PapercutsDoc } from './refs.ts'
@@ -86,17 +90,28 @@ export default function papercutExtension(host: Host) {
     tools: [
       defineTool({
         name: 'papercut',
-        description:
-          'A small friction, recorded while it is fresh, so the next dream can find it reliably: a tool that failed or needed a workaround, an instruction that misled you, a harness or environment limitation, a model mistake worth knowing, something slow enough to cost you time. raise {what, kind, where?, fix?} (default); list the open ones; resolve {id, how, ref?} once it is fixed, noise or superseded, ref naming the commit or memory slug for fixed. Repeating the same kind and where counts up on the open row instead of adding one. Nothing records itself here.',
+        description: `A small friction, recorded while it is fresh, so the next dream can find it reliably: a tool that failed or needed a workaround, an instruction that misled you, a harness or environment limitation, a model mistake worth knowing, something slow enough to cost you time. raise {what, kind, where?, fix?} (default); list the open ones; resolve {id, how, ref?} once it is fixed, noise or superseded, ref naming the commit or memory slug for fixed. Repeating the same kind and where counts up on the open row instead of adding one. One line each: what at most ${WHAT_CHARS} characters, where ${WHERE_CHARS}, fix ${FIX_CHARS}, ref ${REF_CHARS}. Nothing records itself here.`,
+        // The limits `limited()` enforces are declared here too, from the same constants: a tool's limits belong in its
+        // schema, where the model reads them before the call, not only in the error an over-long one comes back with.
         parameters: obj({
           action: opt(strEnum(['raise', 'list', 'resolve'])),
-          what: opt(str()),
+          what: opt(str({ maxLength: WHAT_CHARS, description: 'The friction in one line.' })),
           kind: opt(strEnum(KINDS)),
-          where: opt(str()),
-          fix: opt(str()),
+          where: opt(
+            str({
+              maxLength: WHERE_CHARS,
+              description: 'Where it happened: a tool name, path:line, #conversation/entry.',
+            }),
+          ),
+          fix: opt(str({ maxLength: FIX_CHARS, description: 'One line on what would make it cheap.' })),
           id: opt(int({ minimum: 1 })),
           how: opt(strEnum(CLOSINGS)),
-          ref: opt(str()),
+          ref: opt(
+            str({
+              maxLength: REF_CHARS,
+              description: 'For fixed: the commit or memory slug that fixed it.',
+            }),
+          ),
         }),
         // Not replay-safe (the default): an interrupted raise is never rerun, so it counts at most once.
         async execute(args, api, ctx) {

@@ -136,12 +136,19 @@ test('refuses an empty what, an unknown kind, a long field and a fixed row witho
     () => raise(index, input({ kind: 'vibes' as Papercut['kind'] })),
     /kind must be/,
   )
+  // The limits the tool schema advertises: the limit itself passes, one more character is the wall.
   assert.throws(() => raise(index, input({ what: 'x'.repeat(281) })), /at most 280/)
   assert.throws(() => raise(index, input({ where: 'y'.repeat(121) })), /at most 120/)
   assert.throws(() => raise(index, input({ fix: 'z'.repeat(201) })), /at most 200/)
+  raise(
+    index,
+    input({ what: 'x'.repeat(280), where: 'y'.repeat(120), fix: 'z'.repeat(200) }),
+  )
+  assert.equal(index.rows.length, 1)
   raise(index, input({}))
-  assert.throws(() => resolve(index, 1, 'fixed'), /needs ref/)
+  assert.throws(() => resolve(index, 2, 'fixed'), /needs ref/)
+  assert.throws(() => resolve(index, 2, 'fixed', 'r'.repeat(121)), /at most 120/)
   assert.throws(() => resolve(index, 99, 'noise'), /No papercut 99/)
-  resolve(index, 1, 'superseded', 'memory:model-families')
-  assert.throws(() => resolve(index, 1, 'noise'), /already superseded/)
+  resolve(index, 2, 'superseded', 'memory:model-families')
+  assert.throws(() => resolve(index, 2, 'noise'), /already superseded/)
 })

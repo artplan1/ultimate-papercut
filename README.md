@@ -24,7 +24,8 @@ An agent raises one with `papercut {what, kind, where?, fix?}`, reads the open o
 `{action: 'resolve', id, how, ref?}` once they are fixed, noise or superseded; `ref` names the commit or memory slug that
 fixed it, and `fixed` will not close a row without one. A repeat of the same `kind` and `where` counts up on the open row
 rather than adding one (without a `where`, the first words of `what` stand in for it), so twenty branches hitting the
-same wall leave one row with a `count`. Text is one line each: 280 characters of `what`, 120 of `where`, 200 of `fix`.
+same wall leave one row with a `count`. Text is one line each: 280 characters of `what`, 120 of `where`, 200 of `fix`,
+120 of the `ref` that closes a row — the tool's schema declares the same limits, so a call can keep inside them.
 Nothing writes here automatically, the same as memory.
 
 The tool call stays as the durable evidence: the row says `#conversation`, `at`, `by` (the raiser's label, or a standing
